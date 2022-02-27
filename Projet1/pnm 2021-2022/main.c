@@ -45,11 +45,15 @@ int main(int argc, char *argv[]) {
         copyfile = optarg;
         break;
       case '?':
-        printf("Unknown option : %c\n",optopt);
+        printf("----------------------------------------------------------\n");
+        printf("/!\\ Unknown option : %c /!\\\n",optopt);
+        printf("----------------------------------------------------------\n");
         return 0;
         break;
       case ':':
-        printf("Missing argument : %c\n",optopt);
+        printf("----------------------------------------------------------\n");
+        printf("/!\\ Missing argument : %c /!\\\n",optopt);
+        printf("----------------------------------------------------------\n");
         return 0;
         break;
       default:
@@ -121,11 +125,10 @@ int main(int argc, char *argv[]) {
     break;
   default:
     printf("W.MESSAGE : File written succefully !\n");
-    printf("----------------------------------------------------------\n");
     break;
   }
 
-  printf("\n");
+  printf("----------------------------------------------------------\n");
 
   return 0;
 }

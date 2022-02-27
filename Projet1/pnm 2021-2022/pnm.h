@@ -26,20 +26,20 @@ typedef struct PNM_t PNM;
 /**
  * load_pnm
  *
- * Charge une image PNM depuis un fichier.
+ * load an PNM image from a file.
  *
- * @param image l'adresse d'un pointeur sur PNM à laquelle écrire l'adresse
- *              de l'image chargée.
- * @param filename le chemin vers le fichier contenant l'image.
+ * @param image the address of a pointer to PNM to which to write the address
+ *              of the loaded image.
+ * @param filename the path to the file containing the image.
  *
  * @pre: image != NULL, filename != NULL
- * @post: image pointe vers l'image chargée depuis le fichier.
+ * @post: image points to the image loaded from file.
  *
  * @return:
- *     0 Succès
- *    -1 Erreur à l'allocation de mémoire
- *    -2 Nom du fichier malformé
- *    -3 Contenu du fichier malformé
+ *     0 Succes
+ *    -1 Memory allocation error
+ *    -2 Name of the file malformed
+ *    -3 Content of the file malformed
  *
  */
 int load_pnm(PNM **image, char* filename);
@@ -47,18 +47,18 @@ int load_pnm(PNM **image, char* filename);
 /**
  * write_pnm
  *
- * Sauvegarde une image PNM dans un fichier.
+ * Save an PNM image in a file.
  *
- * @param image un pointeur sur PNM.
- * @param filename le chemin vers le fichier de destination.
+ * @param image a pointer to PNM.
+ * @param filename the path to the destination file.
  *
  * @pre: image != NULL, filename != NULL
- * @post: le fichier filename contient l'image PNM image.
+ * @post: the file filename contains the image PNM image.
  *
  * @return:
- *     0 Succès
- *    -1 Nom du fichier malformé
- *    -2 Erreur lors de la manipulation du fichier
+ *     0 Succes
+ *    -1 Name of the file malformed
+ *    -2 Error while handling the file
  *
  */
 int write_pnm(PNM *image, char* filename);
@@ -66,17 +66,17 @@ int write_pnm(PNM *image, char* filename);
 /**
  * compare_format
  *
- * Compare the format between de -f argument and -i argument
+ * Compare the format between de -f argument and -i/-o argument
  *
  * @param format the format given in the input.
  * @param inputFilename the path to the input file.
  * @param outputFilename the path to the output file.
  *
  * @pre: format != NULL, inputFilename != NULL, outputFilename != NULL
- * @post: the format and the two input and output extension are compared with a specific return.
+ * @post: the format and the two input and output extension are compared, with a specific return.
  *
  * @return:
- *      0 All format are good
+ *      0 All extensions are good
  *     -1 Output extension not the same that the format
  *     -2 Input extension not the same that the format
  *

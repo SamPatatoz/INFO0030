@@ -27,8 +27,12 @@
 //all typedef------------------------------------------------------------------
 
 typedef enum{pbm = 1, pgm = 2, ppm = 3}MagicNumber;
-typedef enum{perfecto = 0, memoryProblem = -1, wrongInput = -2, malformedInput = -3}LoadErrors;
-typedef enum{perfect = 0, wrongOutput = -1, failedSave = -2}WriteErrors;
+
+//use for return value
+typedef enum{perfecto, memoryProblem = -1, wrongInput = -2, malformedInput = -3
+            }LoadErrors;
+typedef enum{perfect, wrongOutput = -1, failedSave = -2}WriteErrors;
+
 
 struct PNM_t {
    MagicNumber magicNumber;
@@ -139,17 +143,17 @@ static PNM *set_max_value (PNM *pnm, unsigned int m) {
 static void checkif_commentary (FILE *fp) {
   assert(fp != NULL);
 
-  fseek(fp,+1,SEEK_CUR);
+  fseek(fp, +1, SEEK_CUR);
   int check = fgetc(fp);
 
   if(check == 10)//Line feed format
     check = fgetc(fp);
 
   if(check == '#')
-    fscanf(fp,"%*[^\n]\n");//Skip line
+    fscanf(fp, "%*[^\n]\n");//Skip line
     //Place the value(s)
   else {
-    fseek(fp,-1,SEEK_CUR);//Go back
+    fseek(fp, -1, SEEK_CUR);//Go back
     //Place the value(s)
   }
 
@@ -191,7 +195,7 @@ static unsigned int **create_matrix (PNM *pnm) {
 static void destroy_matrix (unsigned int **matrix ,unsigned int r) {
    assert(matrix != NULL);
 
-   for(unsigned int i=0;i<r;i++) {
+   for(unsigned int i = 0; i < r; i++) {
       free(matrix[i]);
     }
     free(matrix);
@@ -203,8 +207,7 @@ int compare_format (char *format, char *inputFilename, char *outputFilename) {
 
    const unsigned int MAX_LENGTH = 4;
    char copyInputFilename[MAX_LENGTH];
-   char copyOutputFilename[MAX_LENGTH];
-
+   char copyOutputFilename[MAX_LENGTH];    
    unsigned int inputLength = strlen(inputFilename);
    unsigned int outputLength = strlen(outputFilename);
 
@@ -256,7 +259,7 @@ static int read_magic_number (FILE *fp, PNM *pnm) {
 
    fscanf(fp, "%s", str);
    //take the second symbol and typecast to int
-   unsigned int p = str[1]-'0';
+   unsigned int p = str[1] - '0';
 
    //check for malformed magic number
    if(p != 1 && p != 2 && p!= 3) {
@@ -490,14 +493,17 @@ int write_pnm(PNM *image, char* filename) {
    if(fp == NULL)
       return failedSave;
 
+
    //write everything
    write_magic_number(fp, image);
+
    write_columns_rows(fp, image);
 
    if(get_magic_number(image) != pbm)
       write_max_value(fp, image);
 
    write_matrix(fp, image);
+
 
    //free all memory
    destroy_matrix(get_matrix(image), get_nbr_rows(image));
