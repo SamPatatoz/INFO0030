@@ -69,17 +69,19 @@ int write_pnm(PNM *image, char* filename);
  * Compare the format between de -f argument and -i argument
  *
  * @param format the format given in the input.
- * @param filename the path to the destination file.
+ * @param inputFilename the path to the input file.
+ * @param outputFilename the path to the output file.
  *
- * @pre: format != NULL, filename != NULL
- * @post: the format and the filename are compared with a specific return.
+ * @pre: format != NULL, inputFilename != NULL, outputFilename != NULL
+ * @post: the format and the two input and output extension are compared with a specific return.
  *
  * @return:
- *     0 Succes
- *    -2 Not the same format
+ *      0 All format are good
+ *     -1 Output extension not the same that the format
+ *     -2 Input extension not the same that the format
  *
  */
-int compare_format (char *format, char *filename);
+int compare_format (char *format, char *inputFilename, char *outputFilename);
 
 #endif // __PNM__
 

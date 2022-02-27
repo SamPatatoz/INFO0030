@@ -29,10 +29,9 @@ int main(int argc, char *argv[]) {
 
   printf("\n");
   printf("----------------------------------------------------------\n");
-  while((val=getopt(argc, argv, optstring))!=EOF)
-  {
-    switch(val)
-    {
+  while((val=getopt(argc, argv, optstring))!=EOF) {
+
+    switch(val) {
       case 'f':
         printf("Format : %s\n",optarg);
         format = optarg;
@@ -56,18 +55,31 @@ int main(int argc, char *argv[]) {
       default:
         break;
     }
+    
   }
 
-  if(compare_format(format, filename) == -2) {
+
+  //check all format
+  switch (compare_format(format, filename, copyfile)) {
+  case -1:
     printf("----------------------------------------------------------\n");
-    printf("/!\\ F.ERROR : Wrong format input /!\\\n");
+    printf("/!\\ F.ERROR : Wrong output format /!\\\n");
     printf("----------------------------------------------------------\n");
     abort();
-  }
+    break;
+  case -2:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ F.ERROR : Wrong input format /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  default:
+    break;
+  }  
 
 
-  switch (load_pnm(&image, filename))
-  {
+  //load the pnm image
+  switch (load_pnm(&image, filename)) {
   case -1:
     printf("----------------------------------------------------------\n");
     printf("/!\\ L.ERROR : Memory problem(s) /!\\\n");
@@ -93,8 +105,8 @@ int main(int argc, char *argv[]) {
   }
 
 
-  switch (write_pnm(image, copyfile)) 
-  {
+  //write the pnm image
+  switch (write_pnm(image, copyfile)) {
   case -1:
     printf("----------------------------------------------------------\n");
     printf("/!\\ W.ERROR : Output filename forbidden /!\\\n");
