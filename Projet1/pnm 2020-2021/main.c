@@ -1,11 +1,11 @@
 /**
  * main.c
- *
+ * 
  * Ce fichier contient la fonction main() du programme de manipulation
  * de fichiers pnm.
  *
- * @author: El Masri Sam s190377
- * @date: 24/06/2021
+ * @author: EL MASRI Sam s190377
+ * @date: 24/02/2022
  * @projet: INFO0030 Projet 1
  */
 
@@ -19,9 +19,7 @@
 #include "pnm.h"
 
 
-int main(int argc, char *argv[])
-{
-
+int main(int argc, char *argv[]) {
   PNM *image = NULL;
   char *filename;
   char *copyfile;
@@ -30,11 +28,11 @@ int main(int argc, char *argv[])
   int val;
 
   printf("\n");
+  printf("----------------------------------------------------------\n");
+  //thank you for this piece of code Mr Donnet !
+  while((val=getopt(argc, argv, optstring))!=EOF) {
 
-  while((val=getopt(argc, argv, optstring))!=EOF)
-  {
-    switch(val)
-    {
+    switch(val) {
       case 'f':
         printf("Format : %s\n",optarg);
         format = optarg;
@@ -48,37 +46,91 @@ int main(int argc, char *argv[])
         copyfile = optarg;
         break;
       case '?':
-        printf("Unknown option : %c\n",optopt);
+        printf("----------------------------------------------------------\n");
+        printf("/!\\ Unknown option : %c /!\\\n",optopt);
+        printf("----------------------------------------------------------\n");
         return 0;
         break;
       case ':':
-        printf("Missing argument : %c\n",optopt);
+        printf("----------------------------------------------------------\n");
+        printf("/!\\ Missing argument : %c /!\\\n",optopt);
+        printf("----------------------------------------------------------\n");
         return 0;
         break;
       default:
         break;
     }
+    
   }
 
-  printf("\n");
 
-  if(format_compare(filename, format)==-1)
-  {
-    printf("Wrong format passed in argument\n");
-    return 0;
+  //check all format
+  switch (compare_format(format, filename, copyfile)) {
+  case -1:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ F.ERROR : Wrong output format /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  case -2:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ F.ERROR : Wrong input format /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  default:
+    break;
+  }  
+
+
+  //load the pnm image
+  switch (load_pnm(&image, filename)) {
+  case -1:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ L.ERROR : Memory problem(s) /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  case -2:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ L.ERROR : Input filename malformed /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  case -3:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ L.ERROR : Input file malformed /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;  
+  default:
+    printf("----------------------------------------------------------\n");
+    printf("L.MESSAGE : File loaded succefully !\n");
+    break;
   }
 
-  if(return_error_load(load_pnm(&image,filename))==-1)
-  {
-    return 0;
+
+  //write the pnm image
+  switch (write_pnm(image, copyfile)) {
+  case -1:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ W.ERROR : Output filename forbidden /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  case -2:
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ W.ERROR : The image could not be saved in a file /!\\\n");
+    printf("----------------------------------------------------------\n");
+    abort();
+    break;
+  default:
+    printf("W.MESSAGE : File written succefully !\n");
+    break;
   }
 
-  if(write_pnm(image,copyfile)==-1)
-  {
-    printf("The name of the output file passed in argument is not valid\n");
-    return 0;
-  }
+  printf("----------------------------------------------------------\n");
 
-  printf("Input file successfully copied to output file !\n");
   return 0;
 }
+

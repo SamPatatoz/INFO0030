@@ -1,11 +1,11 @@
 /**
  * pnm.h
- *
+ * 
  * Ce fichier contient les déclarations de types et les prototypes
  * des fonctions pour la manipulation d'images PNM.
- *
- * @author: El Masri Sam s190377
- * @date: 24/06/2021
+ * 
+ * @author: EL MASRI Sam s190377
+ * @date: 24/02/2022
  * @projet: INFO0030 Projet 1
  */
 
@@ -26,20 +26,20 @@ typedef struct PNM_t PNM;
 /**
  * load_pnm
  *
- * Charge une image PNM depuis un fichier.
+ * load an PNM image from a file.
  *
- * @param image l'adresse d'un pointeur sur PNM à laquelle écrire l'adresse
- *              de l'image chargée.
- * @param filename le chemin vers le fichier contenant l'image.
+ * @param image the address of a pointer to PNM to which to write the address
+ *              of the loaded image.
+ * @param filename the path to the file containing the image.
  *
  * @pre: image != NULL, filename != NULL
- * @post: image pointe vers l'image chargée depuis le fichier.
+ * @post: image points to the image loaded from file.
  *
  * @return:
- *     0 Succès
- *    -1 Erreur à l'allocation de mémoire
- *    -2 Nom du fichier malformé
- *    -3 Contenu du fichier malformé
+ *     0 Succes
+ *    -1 Memory allocation error
+ *    -2 Name of the file malformed
+ *    -3 Content of the file malformed
  *
  */
 int load_pnm(PNM **image, char* filename);
@@ -47,54 +47,41 @@ int load_pnm(PNM **image, char* filename);
 /**
  * write_pnm
  *
- * Sauvegarde une image PNM dans un fichier.
+ * Save an PNM image in a file.
  *
- * @param image un pointeur sur PNM.
- * @param filename le chemin vers le fichier de destination.
+ * @param image a pointer to PNM.
+ * @param filename the path to the destination file.
  *
  * @pre: image != NULL, filename != NULL
- * @post: le fichier filename contient l'image PNM image.
+ * @post: the file filename contains the image PNM image.
  *
  * @return:
- *     0 Succès
- *    -1 Nom du fichier malformé
- *    -2 Erreur lors de la manipulation du fichier
+ *     0 Succes
+ *    -1 Name of the file malformed
+ *    -2 Error while handling the file
  *
  */
 int write_pnm(PNM *image, char* filename);
 
 /**
- * return_error_load
+ * compare_format
  *
- * Prends en argument la valeur de retour de la fonction load_pnm et affiche
-   l'erreur à l'écran.
+ * Compare the format between de -f argument and -i/-o argument
  *
- * @param valeur de retour de load_pnm.
+ * @param format the format given in the input.
+ * @param inputFilename the path to the input file.
+ * @param outputFilename the path to the output file.
  *
- * @pre: /
- * @post: Affiche à l'écran le type d'erreur.
- *
- * @return:
- *    -1 Si erreur
- *
- */
-int return_error_load (int x);
-/**
- * format_compare
- *
- * Compare le format de l'option f et i.
- *
- * @param format entré dans l'option f.
- * @param filename le chemin vers le fichier de destination.
- *
- * @pre: filename != NULL, format != NULL
- * @post: Return -1 si les formats sont différents.
+ * @pre: format != NULL, inputFilename != NULL, outputFilename != NULL
+ * @post: the format and the two input and output extension are compared, with a specific return.
  *
  * @return:
- *     0 Formats similaires
- *    -1 Formats différents
+ *      0 All extensions are good
+ *     -1 Output extension not the same that the format
+ *     -2 Input extension not the same that the format
  *
  */
-int format_compare(char *filename, char* format);
+int compare_format (char *format, char *inputFilename, char *outputFilename);
 
 #endif // __PNM__
+

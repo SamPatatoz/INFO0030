@@ -31,5 +31,8 @@ pnm.o: pnm.c
 	$(CC) -c pnm.c -o pnm.o $(CFLAGS)
 
 clean:
-	rm -f *.o $(EXEC) *~
+	rm -f *.o $(EXEC) pnm.tar.gz *~
+
+archive:
+	tar -zcvf pnm.tar.gz *.h *.c Makefile
 
