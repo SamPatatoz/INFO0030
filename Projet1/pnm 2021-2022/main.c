@@ -29,6 +29,7 @@ int main(int argc, char *argv[]) {
 
   printf("\n");
   printf("----------------------------------------------------------\n");
+  //thank you for this piece of code Mr Donnet !
   while((val=getopt(argc, argv, optstring))!=EOF) {
 
     switch(val) {

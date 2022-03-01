@@ -45,7 +45,9 @@ struct PNM_t {
 
 
 
-//definition of constructor/destructor/getters/setters-------------------------
+/*definition of constructor/destructor/getters/setters-------------------------
+ *the will be static for this project
+ */
 
 static PNM **create_pnm (PNM **pnm) {
    assert(pnm != NULL);
@@ -141,21 +143,21 @@ static PNM *set_max_value (PNM *pnm, unsigned int m) {
 //other functions--------------------------------------------------------------
 
 static void checkif_commentary (FILE *fp) {
-  assert(fp != NULL);
+   assert(fp != NULL);
 
-  fseek(fp, +1, SEEK_CUR);
-  int check = fgetc(fp);
+   fseek(fp, +1, SEEK_CUR);
+   int check = fgetc(fp);
 
-  if(check == 10)//Line feed format
-    check = fgetc(fp);
+   if(check == 10)//Line feed format
+      check = fgetc(fp);
 
-  if(check == '#')
-    fscanf(fp, "%*[^\n]\n");//Skip line
-    //Place the value(s)
-  else {
-    fseek(fp, -1, SEEK_CUR);//Go back
-    //Place the value(s)
-  }
+   if(check == '#')
+      fscanf(fp, "%*[^\n]\n");//Skip line
+      //Place the value(s)
+   else {
+      fseek(fp, -1, SEEK_CUR);//Go back
+      //Place the value(s)
+   }
 
 }
 
@@ -258,6 +260,9 @@ static int read_magic_number (FILE *fp, PNM *pnm) {
       return memoryProblem;
 
    fscanf(fp, "%s", str);
+   
+   if(str[0] != 'P')
+      return malformedInput;
    //take the second symbol and typecast to int
    unsigned int p = str[1] - '0';
 
@@ -351,6 +356,7 @@ int load_pnm(PNM **image, char* filename) {
 
    //read everything
 
+   //check for error return
    int checkMagicNumber = read_magic_number(fp, (*image));
    if(checkMagicNumber == malformedInput) {
       return malformedInput;
@@ -447,6 +453,7 @@ static int check_output_filename (char *filename) {
 
    unsigned int lenght = strlen(filename);
    for(unsigned int i = 0; i < lenght; i++) {
+      //if forbidden character for outputFileName => return wrongOutput
       switch (filename[i]) {
       case ':':
          return wrongOutput;
