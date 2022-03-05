@@ -17,16 +17,15 @@
 #include "pnm.h"
 
 
-#define MAJ 32
 #define PPM_COLUMNS 3
 #define PBM_MAX_VALUE 1 
-#define PGM_PPM_MAX_VALUE 255
+#define PGM_MAX_VALUE 255
+#define PPM_MAX_VALUE 65536
+
 
 
 
 //all typedef------------------------------------------------------------------
-
-typedef enum{pbm = 1, pgm = 2, ppm = 3}MagicNumber;
 
 //use for return value
 typedef enum{perfecto, memoryProblem = -1, wrongInput = -2, malformedInput = -3
@@ -45,11 +44,10 @@ struct PNM_t {
 
 
 
-/*definition of constructor/destructor/getters/setters-------------------------
- *the will be static for this project
- */
+//definition of constructor/destructor/getters/setters-------------------------
 
-static PNM **create_pnm (PNM **pnm) {
+
+PNM **create_pnm (PNM **pnm) {
    assert(pnm != NULL);
 
    *pnm = malloc(sizeof(PNM));
@@ -60,49 +58,49 @@ static PNM **create_pnm (PNM **pnm) {
 }
 
 
-static void destroy_pnm (PNM *pnm) {
+void destroy_pnm (PNM *pnm) {
    assert(pnm != NULL);
 
    free(pnm);
 }
 
 
-static MagicNumber get_magic_number (PNM *pnm) {
+MagicNumber get_magic_number (PNM *pnm) {
    assert(pnm != NULL);
 
    return pnm->magicNumber;
 }
 
 
-static unsigned int get_nbr_columns (PNM *pnm) {
+unsigned int get_nbr_columns (PNM *pnm) {
    assert(pnm != NULL);
 
    return pnm->nbrColumns;
 }
 
 
-static unsigned int get_nbr_rows (PNM *pnm) {
+unsigned int get_nbr_rows (PNM *pnm) {
    assert(pnm != NULL);
 
    return pnm->nbrRows;
 }
 
 
-static unsigned int get_max_value(PNM *pnm) {
+unsigned int get_max_value(PNM *pnm) {
    assert(pnm != NULL);
 
    return pnm->maxValue;
 }
 
 
-static unsigned int **get_matrix (PNM *pnm) {
+unsigned int **get_matrix (PNM *pnm) {
    assert(pnm != NULL);
 
    return pnm->matrix;
 }
 
 
-static PNM *set_magic_number (PNM *pnm, int magicNumber) {
+PNM *set_magic_number (PNM *pnm, int magicNumber) {
    assert(pnm != NULL);
 
    pnm->magicNumber = magicNumber;
@@ -111,7 +109,7 @@ static PNM *set_magic_number (PNM *pnm, int magicNumber) {
 }
 
 
-static PNM *set_nbr_columns (PNM *pnm, unsigned int c) {
+PNM *set_nbr_columns (PNM *pnm, unsigned int c) {
    assert(pnm != NULL);
 
    pnm->nbrColumns = c;
@@ -120,7 +118,7 @@ static PNM *set_nbr_columns (PNM *pnm, unsigned int c) {
 }
 
 
-static PNM *set_nbr_rows (PNM *pnm, unsigned int r) {
+PNM *set_nbr_rows (PNM *pnm, unsigned int r) {
    assert(pnm != NULL);
 
    pnm->nbrRows = r;
@@ -129,10 +127,18 @@ static PNM *set_nbr_rows (PNM *pnm, unsigned int r) {
 }
 
 
-static PNM *set_max_value (PNM *pnm, unsigned int m) {
+PNM *set_max_value (PNM *pnm, unsigned int m) {
    assert(pnm != NULL);
 
    pnm->maxValue = m;
+
+   return pnm;
+}
+
+PNM *set_matrix (PNM *pnm, unsigned int **matrix) {
+   assert(pnm != NULL);
+
+   pnm->matrix = matrix;
 
    return pnm;
 }
@@ -204,45 +210,77 @@ static void destroy_matrix (unsigned int **matrix ,unsigned int r) {
 }
 
 
+static int check_format (char *format) {
+   assert(format != NULL);
+
+   const unsigned int FORMAT_LENGTH = 3;
+   //check format length
+   if(strlen(format) != FORMAT_LENGTH)
+      return wrongInput;
+
+   const unsigned int FIRST = 0;
+   const unsigned int SECOND = 1;
+   const unsigned int THIRD = 2;
+
+   //check first letter
+   if(format[FIRST] != 'P')
+      return wrongInput;
+   
+   //check second letter
+   switch (format[SECOND])
+   {
+   case 'B':
+      break;
+   case 'G':
+      break;
+   case 'P':
+      break;
+   default:
+      return wrongInput;
+      break;
+   }
+
+   //check third letter
+   if(format[THIRD] != 'M')
+      return wrongInput;
+
+   return perfect;
+}
+
+
 int compare_format (char *format, char *inputFilename, char *outputFilename) {
    assert(format != NULL && inputFilename != NULL && outputFilename != NULL);
 
+   //check the format length and composition
+   if(check_format(format) == wrongInput)
+      return wrongInput;
+
    const unsigned int MAX_LENGTH = 4;
+   const unsigned int MAJ = 32;
+
    char copyInputFilename[MAX_LENGTH];
-   char copyOutputFilename[MAX_LENGTH];    
+   char copyOutputFilename[MAX_LENGTH];  
+
    unsigned int inputLength = strlen(inputFilename);
    unsigned int outputLength = strlen(outputFilename);
 
-   //Convert letters to uppercase
-   copyInputFilename[0] = inputFilename[inputLength-3] - MAJ;
-   copyInputFilename[1] = inputFilename[inputLength-2] - MAJ;
-   copyInputFilename[2] = inputFilename[inputLength-1] - MAJ;
+   unsigned int x = 3;
+   for(unsigned int i = 0; i < MAX_LENGTH - 1; i++) {
 
-   copyOutputFilename[0] = outputFilename[outputLength-3] - MAJ;
-   copyOutputFilename[1] = outputFilename[outputLength-2] - MAJ;
-   copyOutputFilename[2] = outputFilename[outputLength-1] - MAJ;
+      //check input filename extension
+      copyInputFilename[i] = inputFilename[inputLength - x] - MAJ;
+      if(copyInputFilename[i] != format[i]) {
+         return wrongInput;
+      }
 
-   //check input filename extension
-   if(copyInputFilename[0] != format[0]) {
-      return wrongInput;
-   }
-   if(copyInputFilename[1] != format[1]) {
-      return wrongInput;
-   }
-   if(copyInputFilename[2] != format[2]) {
-      return wrongInput;
-   }
+      //check output filename extension      
+      copyOutputFilename[i] = outputFilename[outputLength - x] - MAJ;
+      if(copyOutputFilename[0] != format[0]) {
+         return wrongOutput;
+      }
 
-   //check output filename extension
-   if(copyOutputFilename[0] != format[0]) {
-      return wrongOutput;
+      x--;
    }
-   if(copyOutputFilename[1] != format[1]) {
-      return wrongOutput;
-   }
-   if(copyOutputFilename[2] != format[2]) {
-      return wrongOutput;
-   }   
 
    return perfecto;
 }
@@ -255,19 +293,23 @@ int compare_format (char *format, char *inputFilename, char *outputFilename) {
 static int read_magic_number (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
-   char *str = malloc(sizeof(char) * PPM_COLUMNS);
+   const unsigned int MAX_LENGTH = 3;
+   char *str = malloc(sizeof(char) * MAX_LENGTH);
    if(str == NULL)
       return memoryProblem;
 
    fscanf(fp, "%s", str);
    
-   if(str[0] != 'P')
+   if(str[0] != 'P') {
+      free(str);
       return malformedInput;
+   }   
    //take the second symbol and typecast to int
    unsigned int p = str[1] - '0';
 
    //check for malformed magic number
    if(p != 1 && p != 2 && p!= 3) {
+      free(str);
       return malformedInput;
    }
 
@@ -298,8 +340,14 @@ static int read_max_value (FILE* fp, PNM *pnm) {
    unsigned int maxValue = 0;
    fscanf(fp, "%u", &maxValue);
 
-   if(maxValue > 255)
-      return malformedInput;
+   if(get_magic_number(pnm) == pgm) {
+      if(maxValue > PGM_MAX_VALUE)
+         return malformedInput;
+   }
+   else {
+      if(maxValue > PPM_MAX_VALUE)
+         return malformedInput;
+   }
 
    set_max_value(pnm, maxValue);
 
@@ -324,12 +372,16 @@ static int read_matrix (FILE *fp, PNM *pnm) {
 
             //check for malformed matrix
             if(magic == ppm || magic == pgm) {
-               if(matrix[i][j] > PGM_PPM_MAX_VALUE)
+               if(matrix[i][j] > PGM_MAX_VALUE) {
+                  destroy_matrix(matrix, rows);
                   return malformedInput;
+               }   
             }
             else {
-               if(matrix[i][j] > PBM_MAX_VALUE)
+               if(matrix[i][j] > PBM_MAX_VALUE) {
+                  destroy_matrix(matrix, rows);
                   return malformedInput;
+               }   
             }
          }
 
@@ -340,29 +392,33 @@ static int read_matrix (FILE *fp, PNM *pnm) {
 
 
 
+
 //load the initial pnm image---------------------------------------------------
 //-----------------------------------------------------------------------------
 
-int load_pnm(PNM **image, char* filename) {
+int load_pnm (PNM **image, char* filename) {
    assert(image != NULL && filename != NULL);
 
    FILE *fp = fopen(filename, "r");
    if(fp == NULL)
       return wrongInput;
 
-   if(create_pnm(image) == NULL)
+   if(create_pnm(image) == NULL) {
+      fclose(fp);
       return memoryProblem;
-
+   }
 
    //read everything
 
    //check for error return
    int checkMagicNumber = read_magic_number(fp, (*image));
    if(checkMagicNumber == malformedInput) {
+      fclose(fp);
       return malformedInput;
    }
 
    else if(checkMagicNumber == memoryProblem) {
+      fclose(fp);
       return memoryProblem;
    }
 
@@ -376,21 +432,22 @@ int load_pnm(PNM **image, char* filename) {
 
    //check if pbm, if not => read the max value
    if(get_magic_number(*image) != pbm) {
-      read_max_value(fp, (*image));
-
-      if(get_max_value(*image) > PGM_PPM_MAX_VALUE) {
+      if(read_max_value(fp, (*image)) == malformedInput) {
+         fclose(fp);
          return malformedInput;
       }
    }
-      
+   
    checkif_commentary(fp);
 
-   (*image)->matrix = create_matrix((*image));
+   set_matrix(*image, create_matrix(*image));
    if(get_matrix(*image) == NULL) {
+      fclose(fp);
       return memoryProblem;
    }
       
    if(read_matrix(fp, (*image)) == malformedInput) {
+      fclose(fp);
       return malformedInput;
    }
 
@@ -490,7 +547,7 @@ static int check_output_filename (char *filename) {
 //write the new pnm image------------------------------------------------------
 //-----------------------------------------------------------------------------
 
-int write_pnm(PNM *image, char* filename) {
+int write_pnm (PNM *image, char* filename) {
    assert(image != NULL && filename != NULL);
 
    if(check_output_filename(filename) == wrongOutput)
@@ -499,7 +556,6 @@ int write_pnm(PNM *image, char* filename) {
    FILE *fp = fopen(filename, "w");
    if(fp == NULL)
       return failedSave;
-
 
    //write everything
    write_magic_number(fp, image);
@@ -514,9 +570,7 @@ int write_pnm(PNM *image, char* filename) {
 
    //free all memory
    destroy_matrix(get_matrix(image), get_nbr_rows(image));
-   destroy_pnm(image);
    fclose(fp);
 
    return perfect;
 }
-

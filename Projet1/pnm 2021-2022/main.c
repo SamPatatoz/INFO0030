@@ -49,13 +49,13 @@ int main(int argc, char *argv[]) {
         printf("----------------------------------------------------------\n");
         printf("/!\\ Unknown option : %c /!\\\n",optopt);
         printf("----------------------------------------------------------\n");
-        return 0;
+        exit(EXIT_FAILURE);
         break;
       case ':':
         printf("----------------------------------------------------------\n");
         printf("/!\\ Missing argument : %c /!\\\n",optopt);
         printf("----------------------------------------------------------\n");
-        return 0;
+        exit(EXIT_FAILURE);
         break;
       default:
         break;
@@ -70,13 +70,13 @@ int main(int argc, char *argv[]) {
     printf("----------------------------------------------------------\n");
     printf("/!\\ F.ERROR : Wrong output format /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;
   case -2:
     printf("----------------------------------------------------------\n");
     printf("/!\\ F.ERROR : Wrong input format /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;
   default:
     break;
@@ -89,19 +89,19 @@ int main(int argc, char *argv[]) {
     printf("----------------------------------------------------------\n");
     printf("/!\\ L.ERROR : Memory problem(s) /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;
   case -2:
     printf("----------------------------------------------------------\n");
     printf("/!\\ L.ERROR : Input filename malformed /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;
   case -3:
     printf("----------------------------------------------------------\n");
     printf("/!\\ L.ERROR : Input file malformed /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;  
   default:
     printf("----------------------------------------------------------\n");
@@ -109,20 +109,19 @@ int main(int argc, char *argv[]) {
     break;
   }
 
-
   //write the pnm image
   switch (write_pnm(image, copyfile)) {
   case -1:
     printf("----------------------------------------------------------\n");
     printf("/!\\ W.ERROR : Output filename forbidden /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;
   case -2:
     printf("----------------------------------------------------------\n");
     printf("/!\\ W.ERROR : The image could not be saved in a file /!\\\n");
     printf("----------------------------------------------------------\n");
-    abort();
+    exit(EXIT_FAILURE);
     break;
   default:
     printf("W.MESSAGE : File written succefully !\n");
@@ -130,6 +129,8 @@ int main(int argc, char *argv[]) {
   }
 
   printf("----------------------------------------------------------\n");
+
+  destroy_pnm(image);
 
   return 0;
 }
