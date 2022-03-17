@@ -86,6 +86,25 @@ int write_pnm(PNM *image, char* filename);
 int compare_format (char *format, char *inputFilename, char *outputFilename);
 
 /**
+ * check_magic_and_extension
+ *
+ * Compare the extension and the magic number
+ *
+ * @param pnm a pointer to PNM.
+ * @param filename the path to the input file.
+ *
+ * @pre: pnm != NULL, filename != NULL
+ * @post: the extension and the magic number are compared.
+ *        If there is an error, the pnm image is free.
+ *
+ * @return:
+ *      0 There is no problem
+ *     -1 Mismatch between the extension and the magic number (pnm is free)
+ *
+ */
+int check_magic_and_extension (PNM *pnm, char *filename);
+
+/**
  * destroy_pnm
  *
  * Free the memory for the image, a pointer to PNM.

@@ -45,7 +45,7 @@ struct PNM_t {
 
 
 
-//definition of constructor/destructor/getters/setters-------------------------
+//basic definition of constructor/destructor/getters/setters-------------------
 
 
 PNM **create_pnm (PNM **pnm) {
@@ -149,6 +149,8 @@ PNM *set_matrix (PNM *pnm, unsigned int **matrix) {
 
 //other functions--------------------------------------------------------------
 
+
+//check a line to pass a line if there is a commentary 
 static void checkif_commentary (FILE *fp) {
    assert(fp != NULL);
 
@@ -170,7 +172,7 @@ static void checkif_commentary (FILE *fp) {
 
 }
 
-
+//create a matrix for the pnm image
 static unsigned int **create_matrix (PNM *pnm) {
    assert(pnm != NULL);
 
@@ -202,7 +204,7 @@ static unsigned int **create_matrix (PNM *pnm) {
    return matrix;
 }
 
-
+//destroy the matrix of the pnm structure
 static void destroy_matrix (unsigned int **matrix ,unsigned int r) {
    assert(matrix != NULL);
 
@@ -212,7 +214,7 @@ static void destroy_matrix (unsigned int **matrix ,unsigned int r) {
     free(matrix);
 }
 
-
+//check the input format. If problem => return an error
 static int check_format (char *format) {
    assert(format != NULL);
 
@@ -249,8 +251,7 @@ static int check_format (char *format) {
 
    return perfect;
 }
-
-
+//compare the format between all the input file's extension
 int compare_format (char *format, char *inputFilename, char *outputFilename) {
    assert(format != NULL && inputFilename != NULL && outputFilename != NULL);
 
@@ -287,11 +288,53 @@ int compare_format (char *format, char *inputFilename, char *outputFilename) {
    return perfecto;
 }
 
+//a check between the magic number and the extension of the input filename
+int check_magic_and_extension (PNM *pnm, char *filename) {
+   assert(pnm != NULL && filename != NULL);
+
+   const int mismatch = -1;
+   const int noProblem = 0;
+   const unsigned int TWO = 2;
+
+   unsigned int strlength = strlen(filename);
+   //take the second letter of the extension => b || g || p
+   unsigned int letter = filename[strlength - TWO];
+
+   switch (pnm->magicNumber) {
+   case 1:
+      if(letter != 'b') {
+         destroy_matrix(pnm->matrix, pnm->nbrRows);
+         destroy_pnm(pnm);
+         return mismatch;
+      }
+      break;
+   case 2:
+      if(letter != 'g') {
+         destroy_matrix(pnm->matrix, pnm->nbrRows);
+         destroy_pnm(pnm);
+         return mismatch;
+      }
+      break;
+   case 3:
+      if(letter != 'p') {
+         destroy_matrix(pnm->matrix, pnm->nbrRows);
+         destroy_pnm(pnm);
+         return mismatch;
+      }
+      break;
+   default:
+      return noProblem;
+      break;
+   }
+   return noProblem;
+}
+
 
 
 
 //functions to read in the pnm file--------------------------------------------
 
+//read the magic number and save the data in the pnm structure
 static int read_magic_number (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
@@ -300,7 +343,10 @@ static int read_magic_number (FILE *fp, PNM *pnm) {
    if(str == NULL)
       return memoryProblem;
 
-   fscanf(fp, "%s", str);
+   if(fscanf(fp, "%s", str) == EOF) {
+      free(str);
+      return malformedInput;
+   }
    
    if(str[0] != 'P') {
       free(str);
@@ -324,12 +370,14 @@ static int read_magic_number (FILE *fp, PNM *pnm) {
    return perfecto;
 }
 
-
+//read the columns and the rows and save them in the pnm structure
 static int read_columns_rows (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
    unsigned int c = 1, r = 1;
-   fscanf(fp, "%u %u", &c, &r);
+   if(fscanf(fp, "%u %u", &c, &r) == EOF) {
+      return malformedInput;
+   }
 
    set_nbr_columns(pnm, c);
    if(get_nbr_columns(pnm) == 0)
@@ -342,12 +390,14 @@ static int read_columns_rows (FILE *fp, PNM *pnm) {
    return perfecto;
 }
 
-
+//read the max value and save it in the pnm structure
 static int read_max_value (FILE* fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
    unsigned int maxValue = 0;
-   fscanf(fp, "%u", &maxValue);
+   if(fscanf(fp, "%u", &maxValue) == EOF) {
+      return malformedInput;
+   }
 
    if(get_magic_number(pnm) == pgm) {
       if(maxValue > PGM_MAX_VALUE)
@@ -363,7 +413,7 @@ static int read_max_value (FILE* fp, PNM *pnm) {
    return perfecto;
 }
 
-
+//read the matrix and save it in the pnm structure
 static int read_matrix (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
@@ -377,7 +427,10 @@ static int read_matrix (FILE *fp, PNM *pnm) {
 
    for(unsigned int i = 0; i < rows; i++) {
          for(unsigned int j = 0; j < columns; j++) {
-            fscanf(fp,"%u ",&matrix[i][j]);
+            if(fscanf(fp,"%u ",&matrix[i][j]) == EOF) {
+               destroy_matrix(matrix, rows);
+               return malformedInput;
+            }
 
             //check for malformed matrix
             if(magic == ppm || magic == pgm) {
@@ -454,7 +507,6 @@ int load_pnm (PNM **image, char* filename) {
       }
    }
    
-   checkif_commentary(fp);
 
    set_matrix(*image, create_matrix(*image));
    if(get_matrix(*image) == NULL) {
@@ -480,27 +532,28 @@ int load_pnm (PNM **image, char* filename) {
 
 //functions to write in the pnm file-------------------------------------------
 
+//write the magic number in the output file
 static void write_magic_number (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
    fprintf(fp, "P%d\n", get_magic_number(pnm));
 }
 
-
+//write the number of coumns and rows in the output file
 static void write_columns_rows (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
    fprintf(fp, "%u %u\n", get_nbr_columns(pnm), get_nbr_rows(pnm));
 }
 
-
+//write the max value in the output file
 static void write_max_value (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
    fprintf(fp, "%u\n", get_max_value(pnm));
 }
 
-
+//write the matrix in the output file
 static void write_matrix (FILE *fp, PNM *pnm) {
    assert(fp != NULL && pnm != NULL);
 
@@ -522,7 +575,7 @@ static void write_matrix (FILE *fp, PNM *pnm) {
    }
 }
 
-
+//take the output filename to check if forbidden character
 static int check_output_filename (char *filename) {
    assert(filename != NULL);
 
@@ -570,14 +623,12 @@ int write_pnm (PNM *image, char* filename) {
 
    if(check_output_filename(filename) == wrongOutput) {
       destroy_matrix(get_matrix(image), get_nbr_rows(image));
-      destroy_pnm(image);
       return wrongOutput;
    }
 
    FILE *fp = fopen(filename, "w");
    if(fp == NULL) {
       destroy_matrix(get_matrix(image), get_nbr_rows(image));
-      destroy_pnm(image);
       return failedSave;
    }
 

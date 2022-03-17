@@ -30,19 +30,24 @@ int main(int argc, char *argv[]) {
   printf("\n");
   printf("----------------------------------------------------------\n");
   //thank you for this piece of code Mr Donnet !
+  unsigned int check = 0;
+
   while((val=getopt(argc, argv, optstring))!=EOF) {
 
     switch(val) {
       case 'f':
         printf("Format : %s\n",optarg);
+        check++;
         format = optarg;
         break;
       case 'i':
         printf("Input : %s\n",optarg);
+        check++;
         filename = optarg;
         break;
       case 'o':
         printf("Output : %s\n",optarg );
+        check++;
         copyfile = optarg;
         break;
       case '?':
@@ -64,8 +69,18 @@ int main(int argc, char *argv[]) {
   }
 
 
+  //check if all arguments has been read
+  const unsigned int NUMBER_OPTIONS = 3;
+  if(check != NUMBER_OPTIONS) {
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ Missing arguments /!\\\n");
+    printf("----------------------------------------------------------\n");
+    exit(EXIT_FAILURE);
+  }
+
+
   //check all format
-  switch (compare_format(format, filename, copyfile)) {
+  switch(compare_format(format, filename, copyfile)) {
   case -1:
     printf("----------------------------------------------------------\n");
     printf("/!\\ F.ERROR : Wrong output format /!\\\n");
@@ -109,18 +124,28 @@ int main(int argc, char *argv[]) {
     break;
   }
 
+  //check the extension and the magic number
+  if(check_magic_and_extension(image, filename)) {
+    printf("----------------------------------------------------------\n");
+    printf("/!\\ E/M.ERROR : Wrong extension or magic number /!\\\n");
+    printf("----------------------------------------------------------\n");
+    exit(EXIT_FAILURE);
+  }
+
   //write the pnm image
   switch (write_pnm(image, copyfile)) {
   case -1:
     printf("----------------------------------------------------------\n");
     printf("/!\\ W.ERROR : Output filename forbidden /!\\\n");
     printf("----------------------------------------------------------\n");
+    destroy_pnm(image);
     exit(EXIT_FAILURE);
     break;
   case -2:
     printf("----------------------------------------------------------\n");
     printf("/!\\ W.ERROR : The image could not be saved in a file /!\\\n");
     printf("----------------------------------------------------------\n");
+    destroy_pnm(image);
     exit(EXIT_FAILURE);
     break;
   default:
