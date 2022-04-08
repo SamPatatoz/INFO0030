@@ -300,5 +300,23 @@ PNM *set_max_value (PNM *pnm, unsigned int m);
  * 
  */
 PNM *set_matrix (PNM *pnm, unsigned int **matrix);
+
+/**
+ * destroy_matrix
+ *
+ * free the matrix of the pnm image.
+ *
+ * @param matrix an double pointer unsigned int value for the matrix
+ * @param r unsigned int value for the number of rows
+ *
+ * @pre: matrix != NULL
+ * @post: the matrix of the image is free.
+ *
+ * @return:
+ *      /
+ * 
+ */
+void destroy_matrix (unsigned int **matrix ,unsigned int r);
+
 #endif // __PNM__
 
